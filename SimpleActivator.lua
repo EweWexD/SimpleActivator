@@ -1,5 +1,4 @@
 -- [[ Lib ]]
---require("DamageLib")
 require("Inspired")
 
 function SimpleActivatorPrint(msg)
@@ -10,20 +9,19 @@ SimpleActivatorPrint("Loaded!")
 SimpleActivatorPrint("Made by EweEwe")
 
 -- [[ Update ]]
--- [[ Update ]]
 local version = "1.0"
 function AutoUpdate(data)
 
     if tonumber(data) > tonumber(version) then
         PrintChat("<font color='#0A760C'>New version found!"  .. data)
         PrintChat("<font color='#0A760C'>Downloading update, please wait...")
-        DownloadFileAsync("https://raw.githubusercontent.com/EweWexD/Ezreal/master/Ezreal.lua", SCRIPT_PATH .. "Ezreal.lua", function() PrintChat("<font color='#0A760C'>Update Complete, please 2x F6!") return end)
+        DownloadFileAsync("https://raw.githubusercontent.com/EweWexD/SimpleActivator/master/SimpleActivator.version", SCRIPT_PATH .. "SimpleActivator.lua", function() PrintChat("<font color='#0A760C'>Update Complete, please 2x F6!") return end)
     else
         PrintChat("<font color='#0A760C'>No updates found!")
     end
 end
 
-GetWebResultAsync("https://raw.githubusercontent.com/EweWexD/Ezreal/master/Ezreal.version", AutoUpdate)
+GetWebResultAsync("https://raw.githubusercontent.com/EweWexD/SimpleActivator/master/SimpleActivator.version", AutoUpdate)
 
 
 -- [[ Menu ]]
