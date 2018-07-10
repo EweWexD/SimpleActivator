@@ -4,6 +4,9 @@
 --╚══╗║ ║║ ║║║║║║║╔══╝║║ ╔╗║╔══╝     ║╚═╝║║║ ╔╗  ║║   ║║  ║╚╝║ ║╚═╝║  ║║  ║║ ║║║╔╗╔╝
 --║╚═╝║╔╣─╗║║║║║║║║   ║╚═╝║║╚══╗     ║╔═╗║║╚═╝║  ║║  ╔╣─╗ ╚╗╔╝ ║╔═╗║  ║║  ║╚═╝║║║║╚╗
 --╚═══╝╚══╝╚╝╚╝╚╝╚╝   ╚═══╝╚═══╝     ╚╝ ╚╝╚═══╝  ╚╝  ╚══╝  ╚╝  ╚╝─╚╝  ╚╝  ╚═══╝╚╝╚═╝
+-- V1.01 Changelog
+-- +Some error fixed.
+--
 -- V1.0 Changelog
 -- +Released to GoS
 
@@ -12,6 +15,7 @@
 
 -- [[ Lib ]]
 require("Inspired")
+require("DamageLib")
 
 function SimpleActivatorPrint(msg)
 	print("<font color=\"#0A760C\">[SimpleActivator]:</font><font color=\"#ffffff\"> "..msg.."</font>")
@@ -21,7 +25,7 @@ SimpleActivatorPrint("Loaded!")
 SimpleActivatorPrint("Made by EweEwe")
 
 -- [[ Update ]]
-local version = "1.0"
+local version = "1.01"
 function AutoUpdate(data)
 
     if tonumber(data) > tonumber(version) then
@@ -43,28 +47,25 @@ SAMenu:SubMenu("Sum", "Summoner Spells")
 SAMenu.Sum:Boolean("Heal", "Use Heal", true)
 SAMenu.Sum:Boolean("SHeal", "Use Heal to save Ally", true)
 SAMenu.Sum:Boolean("Barrier", "Use Barrier", true)
-SAMenu.Sum:Boolean("Ignite", "Use Ignite to kill steal", true)
+SAMenu.Sum:Boolean("Ignite", "Use Smite to kill steal", true)
 SAMenu.Sum:Slider("HealI", "HP to Heal me", 20, 0, 100, 5)
 SAMenu.Sum:Slider("HealA", "HP to Heal ally", 20, 0, 100, 5)
 SAMenu.Sum:Slider("BarrierI", "HP to Barrier me", 20, 0, 100, 5)
 -- [[ Items ]]
-SAMenu:SubMenu("Items", "Items Use")
-SAMenu.Items:Boolean("BOTRK", "Use BOTRK", true)
-SAMenu.Items:Boolean("HG", "Use Hextech Gunblade", true)
-SAMenu.Items:Boolean("BC", "Use Bilfewater Cutlass", true)
+SAMenu:SubMenu("ItemsDMG", " Items Use")
+SAMenu.ItemsDMG:Boolean("BOTRK", "Use BOTRK", true)
+SAMenu.ItemsDMG:Boolean("HG", "Use Hextech Gunblade", true)
+SAMenu.ItemsDMG:Boolean("BC", "Use Bilfewater Cutlass", true)
+SAMenu.ItemsDMG:Slider("Wm", "HP to use this items", 50, 0, 100, 5)
 --SAMenu.Items:Boolean("MS", "Use Mercurial Scimitar", true)
 --SAMenu.Items:Boolean("QS", "Use Quicksliver Sash", true)
 -- [[ AutoSmite ]]
 -- Soon 
---  [[ Me ]]
-SAMenu:Info("Juan", "--------------")
-SAMenu:Info("Created", "Made by EweEwe")
-
 -- [[ Tick ]]
 OnTick(function(myHero)
 	target = GetCurrentTarget()
-			 Summoners()
-			 Items()
+	Summoners()
+	ItemsDMG()
 end)
 -- [[ Summoners ]]
 Barrier = (GetCastName(myHero,SUMMONER_1):lower():find("summonerbarrier") and SUMMONER_1 or (GetCastName(myHero,SUMMONER_2):lower():find("summonerbarrier") and SUMMONER_2 or nil))
@@ -88,13 +89,15 @@ function Mode()
 	end
 end
 
+
 function Summoners()
 	-- [[ Ignite ]]
-	if SAMenu.Sum.Ignite:Value() and IsReady(Ignite) then
+	if SAMenu.Sum.Ignite:Value() then
+		if Ignite then
 			for _, enemy in pairs(GetEnemyHeroes()) do
-				if 20*GetLevel(myHero)+50 > GetCurrentHP(enemy)+GetHPRegen(enemy)*3 and ValidTarget(enemy, 600) then
+				if 20*GetLEvel(myHero)+50 > GetCurrentHP(enemy)+GetHPRegen(enemy)*3 and ValidTarget(enemy, 600) then
 					DrawText("Burn!",30,enemy.pos2D.x-30,enemy.pos2D.y-40,0xFFFF0000)
-					CastTargetSpell(enemy, Ignite)
+					CasTargetSpell(enemy, Ignite)
 				end
 			end
 		end
@@ -127,28 +130,31 @@ function Summoners()
 			end
 		end
 	end
+end
 
 -- [[ Items ]]
-function Items()
+function ItemsDMG()
 	if Mode() == "Combo" then
-		if SAMenu.Items.BOTRK:Value() then
-			if GetItemSlot(myHero, 3153) >= 1 and ValidTarget(target, 550) then
-				if CanUseSpell(myHero, GetItemSlot(myHero, 3153)) == READY then
-				CastTargetSpell(target, GetItemSlot(myHero, 3153))
+		if (GetCurrentHP(target)/GetMaxHP(target))*100 <= SAMenu.ItemsDMG.Wm:Value() then
+			if SAMenu.ItemsDMG.BOTRK:Value() then
+				if GetItemSlot(myHero, 3153) >= 1 and ValidTarget(target, 550) then
+					if CanUseSpell(myHero, GetItemSlot(myHero, 3153)) then
+						CastTargetSpell(target, GetItemSlot(myHero, 3153))
+					end
 				end
 			end
-		end
-		if SAMenu.Items.HG:Value() then
-			if GetItemSlot(myHero, 3146) >= 1 and ValidTarget(target, 700) then
-				if CanUseSpell(myHero, GetItemSlot(myHero, 3146)) == READY then
-					CastTargetSpell(target, GetItemSlot(myHero, 3146))
+			if SAMenu.ItemsDMG.HG:Value() then
+				if GetItemSlot(myHero, 3146) >= 1 and ValidTarget(target, 700) then
+					if CanUseSpell(myHero, GetItemSlot(myHero, 3146)) then
+						CastTargetSpell(target, GetItemSlot(myHero, 3146))
+					end
 				end
 			end
-		end
-		if SAMenu.Items.BC:Value() then
-			if GetItemSlot(myHero, 3144) >= 1 and ValidTarget(target, 550) then
-				if CanUseSpell(myHero, GetItemSlot(myHero, 3144)) == READY then
-					CastTargetSpell(target, GetItemSlot(myHero, 3144))
+			if SAMenu.ItemsDMG.BC:Value() then
+				if GetItemSlot(myHero, 3144) >= 1 and ValidTarget(target, 550) then
+					if CanUseSpell(myHero, GetItemSlot(myHero, 3144)) then
+						CastTargetSpell(target, GetItemSlot(myHero, 3144))
+					end
 				end
 			end
 		end
