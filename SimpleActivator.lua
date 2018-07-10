@@ -31,7 +31,7 @@ function AutoUpdate(data)
     if tonumber(data) > tonumber(version) then
         PrintChat("<font color='#0A760C'>New version found!"  .. data)
         PrintChat("<font color='#0A760C'>Downloading update, please wait...")
-        DownloadFileAsync("https://raw.githubusercontent.com/EweWexD/SimpleActivator/master/SimpleActivator.version", SCRIPT_PATH .. "SimpleActivator.lua", function() PrintChat("<font color='#0A760C'>Update Complete, please 2x F6!") return end)
+        DownloadFileAsync("https://raw.githubusercontent.com/EweWexD/SimpleActivator/master/SimpleActivator.lua", SCRIPT_PATH .. "SimpleActivator.lua", function() PrintChat("<font color='#0A760C'>Update Complete, please 2x F6!") return end)
     else
         PrintChat("<font color='#0A760C'>No updates found!")
     end
