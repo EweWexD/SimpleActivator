@@ -4,6 +4,9 @@
 --╚══╗║ ║║ ║║║║║║║╔══╝║║ ╔╗║╔══╝     ║╚═╝║║║ ╔╗  ║║   ║║  ║╚╝║ ║╚═╝║  ║║  ║║ ║║║╔╗╔╝
 --║╚═╝║╔╣─╗║║║║║║║║   ║╚═╝║║╚══╗     ║╔═╗║║╚═╝║  ║║  ╔╣─╗ ╚╗╔╝ ║╔═╗║  ║║  ║╚═╝║║║║╚╗
 --╚═══╝╚══╝╚╝╚╝╚╝╚╝   ╚═══╝╚═══╝     ╚╝ ╚╝╚═══╝  ╚╝  ╚══╝  ╚╝  ╚╝─╚╝  ╚╝  ╚═══╝╚╝╚═╝
+-- V1.02 Changelog
+-- +QSS added.
+--
 -- V1.01 Changelog
 -- +Some error fixed.
 --
@@ -25,7 +28,7 @@ SimpleActivatorPrint("Loaded!")
 SimpleActivatorPrint("Made by EweEwe")
 
 -- [[ Update ]]
-local version = "1.01"
+local version = "1.02"
 function AutoUpdate(data)
 
     if tonumber(data) > tonumber(version) then
@@ -43,7 +46,7 @@ GetWebResultAsync("https://raw.githubusercontent.com/EweWexD/SimpleActivator/mas
 -- [[ Menu ]]
 local SAMenu = Menu("Activator", "Simple Activator")
 -- [[ Summoner Spells ]]
-SAMenu:SubMenu("Sum", "Summoner Spells")
+SAMenu:SubMenu("Sum", "[SA] Summoner Spells")
 SAMenu.Sum:Boolean("Heal", "Use Heal", true)
 SAMenu.Sum:Boolean("SHeal", "Use Heal to save Ally", true)
 SAMenu.Sum:Boolean("Barrier", "Use Barrier", true)
@@ -52,13 +55,14 @@ SAMenu.Sum:Slider("HealI", "HP to Heal me", 20, 0, 100, 5)
 SAMenu.Sum:Slider("HealA", "HP to Heal ally", 20, 0, 100, 5)
 SAMenu.Sum:Slider("BarrierI", "HP to Barrier me", 20, 0, 100, 5)
 -- [[ Items ]]
-SAMenu:SubMenu("ItemsDMG", " Items Use")
+SAMenu:SubMenu("ItemsDMG", "[SA] Items to DMG")
 SAMenu.ItemsDMG:Boolean("BOTRK", "Use BOTRK", true)
 SAMenu.ItemsDMG:Boolean("HG", "Use Hextech Gunblade", true)
 SAMenu.ItemsDMG:Boolean("BC", "Use Bilfewater Cutlass", true)
 SAMenu.ItemsDMG:Slider("Wm", "HP to use this items", 50, 0, 100, 5)
---SAMenu.Items:Boolean("MS", "Use Mercurial Scimitar", true)
---SAMenu.Items:Boolean("QS", "Use Quicksliver Sash", true)
+SAMenu:SubMenu("ItemsFlee", "[SA] Items to Flee")
+SAMenu.ItemsFlee:Boolean("MS", "Use Mercurial Scimitar", true)
+SAMenu.ItemsFlee:Boolean("QS", "Use Quicksliver Sash", true)
 -- [[ AutoSmite ]]
 -- Soon 
 -- [[ Tick ]]
@@ -66,6 +70,7 @@ OnTick(function(myHero)
 	target = GetCurrentTarget()
 	Summoners()
 	ItemsDMG()
+	ItemsFlee()
 end)
 -- [[ Summoners ]]
 Barrier = (GetCastName(myHero,SUMMONER_1):lower():find("summonerbarrier") and SUMMONER_1 or (GetCastName(myHero,SUMMONER_2):lower():find("summonerbarrier") and SUMMONER_2 or nil))
@@ -95,9 +100,9 @@ function Summoners()
 	if SAMenu.Sum.Ignite:Value() then
 		if Ignite then
 			for _, enemy in pairs(GetEnemyHeroes()) do
-				if 20*GetLEvel(myHero)+50 > GetCurrentHP(enemy)+GetHPRegen(enemy)*3 and ValidTarget(enemy, 600) then
+				if 20*GetLevel(myHero)+50 > GetCurrentHP(enemy)+GetHPRegen(enemy)*3 and ValidTarget(enemy, 600) then
 					DrawText("Burn!",30,enemy.pos2D.x-30,enemy.pos2D.y-40,0xFFFF0000)
-					CasTargetSpell(enemy, Ignite)
+					CastTargetSpell(enemy, Ignite)
 				end
 			end
 		end
@@ -155,6 +160,27 @@ function ItemsDMG()
 					if CanUseSpell(myHero, GetItemSlot(myHero, 3144)) then
 						CastTargetSpell(target, GetItemSlot(myHero, 3144))
 					end
+				end
+			end
+		end
+	end
+end
+
+function ItemsFlee()
+	if SAMenu.ItemsFlee.QS:Value() then
+		if GetItemSlot(myHero, 3140) >= 1 then
+			if CanUseSpell(myHero, GetItemSlot(myHero, 3140)) then
+				if GotBuff(myHero, "veigareventhorizonstun") > 0 or GotBuff(myHero, "stun") > 0 or GotBuff(myHero, "taunt") > 0 or GotBuff(myHero, "slow") > 0 or GotBuff(myHero, "snare") > 0 or GotBuff(myHero, "charm") > 0 or GotBuff(myHero, "suppression") > 0 or GotBuff(myHero, "flee") > 0 or GotBuff(myHero, "knockup") > 0 then
+					CastTargetSpell(myHero, GetItemSlot(myHero, 3140))
+				end
+			end
+		end
+	end
+	if SAMenu.ItemsFlee.MS:Value() then
+		if GetItemSlot(myHero, 3139) >= 1 then
+			if CanUseSpell(myHero, GetItemSlot(myHero, 3139)) then
+				if GotBuff(myHero, "veigareventhorizonstun") > 0 or GotBuff(myHero, "stun") > 0 or GotBuff(myHero, "taunt") > 0 or GotBuff(myHero, "slow") > 0 or GotBuff(myHero, "snare") > 0 or GotBuff(myHero, "charm") > 0 or GotBuff(myHero, "suppression") > 0 or GotBuff(myHero, "flee") > 0 or GotBuff(myHero, "knockup") > 0 then
+					CastTargetSpell(myHero, GetItemSlot(myHero, 3139))
 				end
 			end
 		end
