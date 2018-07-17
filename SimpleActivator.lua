@@ -4,6 +4,9 @@
 --╚══╗║ ║║ ║║║║║║║╔══╝║║ ╔╗║╔══╝     ║╚═╝║║║ ╔╗  ║║   ║║  ║╚╝║ ║╚═╝║  ║║  ║║ ║║║╔╗╔╝
 --║╚═╝║╔╣─╗║║║║║║║║   ║╚═╝║║╚══╗     ║╔═╗║║╚═╝║  ║║  ╔╣─╗ ╚╗╔╝ ║╔═╗║  ║║  ║╚═╝║║║║╚╗
 --╚═══╝╚══╝╚╝╚╝╚╝╚╝   ╚═══╝╚═══╝     ╚╝ ╚╝╚═══╝  ╚╝  ╚══╝  ╚╝  ╚╝─╚╝  ╚╝  ╚═══╝╚╝╚═╝
+-- V1.03 Changelog
+-- +Support Mode is added. (Support: IOW/DAC/PW/DACR/SLW)
+--
 -- V1.02 Changelog
 -- +QSS added.
 --
@@ -28,7 +31,7 @@ SimpleActivatorPrint("Loaded!")
 SimpleActivatorPrint("Made by EweEwe")
 
 -- [[ Update ]]
-local version = "1.02"
+local version = "1.03"
 function AutoUpdate(data)
 
     if tonumber(data) > tonumber(version) then
@@ -63,8 +66,12 @@ SAMenu.ItemsDMG:Slider("Wm", "HP to use this items", 50, 0, 100, 5)
 SAMenu:SubMenu("ItemsFlee", "[SA] Items to Flee")
 SAMenu.ItemsFlee:Boolean("MS", "Use Mercurial Scimitar", true)
 SAMenu.ItemsFlee:Boolean("QS", "Use Quicksliver Sash", true)
+-- [[ SupportMode ]]
+SAMenu:SubMenu("SupportMode", "[SA] Support Mode")
+SAMenu.SupportMode:Boolean("AA", "Enable Support Mode", false)
 -- [[ AutoSmite ]]
 -- Soon 
+
 -- [[ Tick ]]
 OnTick(function(myHero)
 	target = GetCurrentTarget()
@@ -72,22 +79,49 @@ OnTick(function(myHero)
 	ItemsDMG()
 	ItemsFlee()
 end)
+
 -- [[ Summoners ]]
 Barrier = (GetCastName(myHero,SUMMONER_1):lower():find("summonerbarrier") and SUMMONER_1 or (GetCastName(myHero,SUMMONER_2):lower():find("summonerbarrier") and SUMMONER_2 or nil))
 Heal = (GetCastName(myHero,SUMMONER_1):lower():find("summonerheal") and SUMMONER_1 or (GetCastName(myHero,SUMMONER_2):lower():find("summonerheal") and SUMMONER_2 or nil))
 Ignite = (GetCastName(myHero,SUMMONER_1):lower():find("summonerdot") and SUMMONER_1 or (GetCastName(myHero,SUMMONER_2):lower():find("summonerdot") and SUMMONER_2 or nil))
 
+
 -- [[ Orbwalker ]]
 function Mode()
 	if _G.IOW_Loaded and IOW:Mode() then
+		if SAMenu.SupportMode.AA:Value() and IOW:Mode() == "LaneClear" then
+			IOW.attacksEnabled = false
+		else
+			IOW.attacksEnamble = true
+		end
 		return IOW:Mode()
 	elseif _G.PW_Loaded and PW:Mode() then
+		if SAMenu.SupportMode.AA:Value() and PW:Mode() == "LaneClear" then
+			PW.attacksEnabled = false
+		else
+			PW.attacksEnamble = true
+		end
 		return PW:Mode()
 	elseif _G.DAC_Loaded and DAC:Mode() then
+		if SAMenu.SupportMode.AA:Value() and DAC:Mode() == "LaneClear" then
+			DAC.attacksEnabled = false
+		else
+			DAC.attacksEnamble = true
+		end
 		return DAC:Mode()
 	elseif _G.AutoCarry_Loaded and DACR:Mode() then
+		if SAMenu.SupportMode.AA:Value() and DACR:Mode() == "LaneClear" then
+			DACR.attacksEnabled = false
+		else
+			DACR.attacksEnamble = true
+		end
 		return DACR:Mode()
 	elseif _G.SLW_Loaded and SLW:Mode() then
+		if SAMenu.SupportMode.AA:Value() and SLW:Mode() == "LaneClear" then
+			SLW.attacksEnabled = false
+		else
+			SLW.attacksEnamble = true
+		end
 		return SLW:Mode()
 	elseif GoSWalkLoaded and GoSWalk.CurrentMode then
 		return ({"Combo", "Harass", "LaneClear", "LastHit"})[GoSWalk.CurrentMode+1]
